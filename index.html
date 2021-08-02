@@ -23,7 +23,7 @@
     */
 
     // Get all usa cases and dates from csv file
-    d3.csv("/data/usa_cases.csv", function(d) {
+    d3.csv("./data/usa_cases.csv", function(d) {
       return {date: d3.timeParse("%Y-%m-%d")(d.date), val: d.new_cases}
     }).then(function(data) {
       const x = d3.scaleTime()
