@@ -1,12 +1,63 @@
 <!DOCTYPE html>
 <html lang = "en">
+<meta charset="utf-8">
    <head>
       <script src = "https://d3js.org/d3.v6.min.js"></script>
    </head>
-
    <body>
-      <script>
-         // write your d3 code here.. 
-      </script>
+     <h1> This is the USA Chart. </h1>
+   <div id="USA"></div>
+    <script>
+    var margin = {top: 50, right: 30, bottom: 30, left: 60},
+                  width = 1000 - margin.left - margin.right,
+                  height = 600 - margin.top - margin.bottom;
+
+    var svg = d3.select("#USA")
+                .append("svg")
+                  .attr("width", width + margin.left + margin.right)
+                  .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                  .attr("transform", `translate(${margin.left},${margin.top})`);
+    /*
+              USA Page
+    */
+
+    // Get all usa cases and dates from csv file
+    d3.csv("/data/usa_cases.csv", function(d) {
+      return {date: d3.timeParse("%Y-%m-%d")(d.date), val: d.new_cases}
+    }).then(function(data) {
+      const x = d3.scaleTime()
+              .domain(d3.extent(data, function(d) { return d.date; }))
+              .range([ 0, width ]);
+      svg.append("g")
+         .attr("transform", `translate(0, ${height})`)
+         .call(d3.axisBottom(x));
+
+      const y = d3.scaleLinear()
+        .domain([0, d3.max(data, function(d) { return +d.val; })])
+        .range([ height, 0 ]);
+      svg.append("g")
+        .call(d3.axisLeft(y));
+
+      svg.append("path")
+        .datum(data)
+        .transition()
+        .duration(3000)
+        .attr("fill", "none")
+        .attr("stroke", "red")
+        .attr("stroke-width", 1)
+        .attr("d", d3.line()
+          .x(function(d) { return x(d.date) })
+          .y(function(d) { return y(d.val) })
+          )
+    });
+
+
+    // // Get all usa deaths and dates from csv file
+    // d3.csv("/data/usa_deaths.csv", function(csv){
+    //   usa_death_dates.push(d3.timeParse("%Y-%m-%d")(csv.date));
+    //   usa_deaths.push(+csv.new_deaths);
+    // });
+    </script>
    </body>
 </html>
