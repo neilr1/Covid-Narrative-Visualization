@@ -4,8 +4,11 @@
    <head>
       <script src = "https://d3js.org/d3.v6.min.js"></script>
    </head>
+   <a href="about.html" title="About Me">About Me</a>
    <body>
      <h1> This is the USA Chart. </h1>
+     <button onclick="trigger(t1)">New Cases</button>
+     <button onclick="trigger(t2)">New Deaths</button>
    <div id="USA"></div>
     <script>
     var margin = {top: 50, right: 30, bottom: 30, left: 60},
@@ -21,43 +24,84 @@
     /*
               USA Page
     */
+    const t1 = "usa_cases";
+    const t2 = "usa_deaths";
+
+    var x = d3.scaleTime().range([0,width]);
+    var xAxis = d3.axisBottom().scale(x);
+    svg.append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .attr("class","testXaxis")
+
+    var y = d3.scaleLinear().range([height, 0]);
+    var yAxis = d3.axisLeft().scale(y);
+    svg.append("g")
+      .attr("class","testYaxis")
 
     // Get all usa cases and dates from csv file
-    d3.csv("/data/usa_cases.csv", function(d) {
-      return {date: d3.timeParse("%Y-%m-%d")(d.date), val: d.new_cases}
-    }).then(function(data) {
-      const x = d3.scaleTime()
-              .domain(d3.extent(data, function(d) { return d.date; }))
-              .range([ 0, width ]);
-      svg.append("g")
-         .attr("transform", `translate(0, ${height})`)
-         .call(d3.axisBottom(x));
+    function trigger(csv_name) {
+      if (csv_name === "usa_cases") {
+        d3.csv("./data/usa_cases.csv", function(d) {
+          return {date: d3.timeParse("%Y-%m-%d")(d.date), val: d.new_cases}
+        }).then(function(data) {
+          x.domain(d3.extent(data, function(d) { return d.date; }));
+          svg.selectAll(".testXaxis").transition()
+          .duration(2000)
+          .call(xAxis);
 
-      const y = d3.scaleLinear()
-        .domain([0, d3.max(data, function(d) { return +d.val; })])
-        .range([ height, 0 ]);
-      svg.append("g")
-        .call(d3.axisLeft(y));
+          y.domain([0, d3.max(data, function(d) { return +d.val; })]);
+          svg.selectAll(".testYaxis").transition()
+             .duration(2000)
+             .call(yAxis);
 
-      svg.append("path")
-        .datum(data)
-        .transition()
-        .duration(3000)
-        .attr("fill", "none")
-        .attr("stroke", "red")
-        .attr("stroke-width", 1)
-        .attr("d", d3.line()
-          .x(function(d) { return x(d.date) })
-          .y(function(d) { return y(d.val) })
-          )
-    });
+          var tmp = svg.selectAll(".testline")
+              .data([data], function(d){ return d.date });
+          tmp.enter()
+          .append("path")
+          .attr("class","testline")
+          .merge(tmp)
+          .transition()
+          .duration(2000)
+          .attr("fill", "none")
+          .attr("stroke", "blue")
+          .attr("stroke-width", 2)
+          .attr("d", d3.line()
+            .x(function(d) { return x(d.date); })
+            .y(function(d) { return y(d.val); }))
+        });
+      } else {
+        d3.csv("./data/usa_deaths.csv", function(d) {
+          return {date: d3.timeParse("%Y-%m-%d")(d.date), val: d.new_deaths}
+        }).then(function(data) {
+          x.domain(d3.extent(data, function(d) { return d.date; }));
+          svg.selectAll(".testXaxis").transition()
+          .duration(2000)
+          .call(xAxis);
 
+          y.domain([0, d3.max(data, function(d) { return +d.val; })]);
+          svg.selectAll(".testYaxis").transition()
+             .duration(2000)
+             .call(yAxis);
 
-    // // Get all usa deaths and dates from csv file
-    // d3.csv("/data/usa_deaths.csv", function(csv){
-    //   usa_death_dates.push(d3.timeParse("%Y-%m-%d")(csv.date));
-    //   usa_deaths.push(+csv.new_deaths);
-    // });
+         var tmp = svg.selectAll(".testline")
+             .data([data], function(d){ return d.date });
+         tmp.enter()
+         .append("path")
+         .attr("class","testline")
+         .merge(tmp)
+         .transition()
+         .duration(2000)
+         .attr("fill", "none")
+         .attr("stroke", "red")
+         .attr("stroke-width", 2)
+         .attr("d", d3.line()
+           .x(function(d) { return x(d.date); })
+           .y(function(d) { return y(d.val); }))
+        });
+      }
+    }
+
+    trigger("usa_cases")
     </script>
    </body>
 </html>
