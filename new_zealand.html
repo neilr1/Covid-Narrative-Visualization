@@ -43,8 +43,8 @@
    <button class="button" onclick="location.href='new_zealand.html'" type="button">
          New Zealand</button>
    </div>
-   <h1> USA Daily Covid Cases and Deaths </h1>
    <body class="body-1">
+     <h1> New Zealand Daily Covid Cases and Deaths </h1>
      <button class="button-two" onclick="trigger(t1)">New Cases</button>
      <button class="button-two" onclick="trigger(t2)">New Deaths</button>
    <body> In this narrative visualization, we explore three different countries and their experiences with COVID.
@@ -59,26 +59,26 @@
      In Italy, the people seemed to have taken time to listen to the mandates, although it did take them less time than in the US.
      In contrast, New Zealand's maximum number of cases were at the beginning of the covid cycle and through immediate action
      by their government to set up COVID mandates and limitations, they were able to control COVID within their country most effectively.
-     Click on either button on the top left to see either the number of new cases per day for the USA or the number of new deaths per day for the
-     USA. Interact with the data and analyze trends to find patterns in how these countries reacted differently to COVID.
+     Click on either button on the top left to see either the number of new cases per day for New Zealand or the number of new deaths per day for
+     New Zealand. Interact with the data and analyze trends to find patterns in how these countries reacted differently to COVID.
    </body>
-   <div id="USA"></div>
+   <div id="New_Zealand"></div>
     <script>
     var margin = {top: 50, right: 30, bottom: 30, left: 60},
                   width = 1000 - margin.left - margin.right,
                   height = 600 - margin.top - margin.bottom;
 
-    var svg = d3.select("#USA")
+    var svg = d3.select("#New_Zealand")
                 .append("svg")
                   .attr("width", width + margin.left + margin.right)
                   .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                   .attr("transform", `translate(${margin.left},${margin.top})`);
     /*
-              USA Page
+              New Zealand Page
     */
-    const t1 = "usa_cases";
-    const t2 = "usa_deaths";
+    const t1 = "new_zealand_cases";
+    const t2 = "new_zealand_deaths";
 
     var x = d3.scaleTime().range([0,width]);
     var xAxis = d3.axisBottom().scale(x);
@@ -94,12 +94,12 @@
     // Get all usa cases and dates from csv file
     function trigger(csv_name) {
 
-      USA.innerHTML = "";
+      New_Zealand.innerHTML = "";
       var margin = {top: 50, right: 30, bottom: 30, left: 60},
                     width = 1000 - margin.left - margin.right,
                     height = 600 - margin.top - margin.bottom;
 
-      var svg = d3.select("#USA")
+      var svg = d3.select("#New_Zealand")
                   .append("svg")
                     .attr("width", width + margin.left + margin.right)
                     .attr("height", height + margin.top + margin.bottom)
@@ -117,8 +117,8 @@
       svg.append("g")
         .attr("class","testYaxis")
 
-      if (csv_name === "usa_cases") {
-        d3.csv("./data/usa_cases.csv", function(d) {
+      if (csv_name === "new_zealand_cases") {
+        d3.csv("./data/new_zealand_cases.csv", function(d) {
           return {date: d3.timeParse("%Y-%m-%d")(d.date), val: d.new_cases}
         }).then(function(data) {
           x.domain(d3.extent(data, function(d) { return d.date; }));
@@ -131,98 +131,97 @@
              .duration(2000)
              .call(yAxis);
 
-          var Tooltip = d3.select("#USA")
-           .append("div")
-           .style("opacity", 0)
-           .style("position", "absolute")
-           .attr("class", "tooltip")
-           .style("background-color", "white")
-           .style("border", 0)
-           .style("border-width", "2px")
-           .style("border-radius", "5px")
-           .style("padding", "5px")
+             var Tooltip = d3.select("#New_Zealand")
+              .append("div")
+              .style("opacity", 0)
+              .style("position", "absolute")
+              .attr("class", "tooltip")
+              .style("background-color", "white")
+              .style("border", 0)
+              .style("border-width", "2px")
+              .style("border-radius", "5px")
+              .style("padding", "5px")
 
-          var mouseover = function(event, d) {
-            Tooltip
-              .style("opacity", 1)
-               d3.select(this)
-              .style("r", 3)
-              .style("fill", "indigo")
-          }
-         var mousemove = function(event, d) {
-           tmpdate = new Date(d.date).toUTCString();
-           tmpdate = tmpdate.split(' ').slice(0, 4).join(' ');
-           Tooltip
-               .html("Date: " + tmpdate + '\n' + "Number of cases: " + d.val)
-               .style("top", (parseInt(d3.select(this).attr("cy")) + 250) +"px")
-               .style("left", (parseInt(d3.select(this).attr("cx")) + 50) + "px")
-         }
-         var mouseleave = function(event, d) {
-           Tooltip
-               .style("opacity", 0)
-               d3.select(this)
-               .style("r", 1)
-               .style("fill", "green")
-         }
-
-          var tmp = svg.selectAll(".testline")
-              .data([data], function(d){ return d.date });
-
-          var chart = tmp.enter()
-          .append("path")
-          .attr("class","testline")
-          .merge(tmp)
-          .transition()
-          .duration(2000)
-          .attr("fill", "none")
-          .attr("stroke", "blue")
-          .attr("stroke-width", 2)
-          .attr("d", d3.line()
-            .x(function(d) { return x(d.date); })
-            .y(function(d) { return y(d.val); }));
-
-
-          d3.select("svg").append("g")
-        .selectAll().data(data).enter()
-        .append("circle")
-            .attr("cx", function(d){return x(d.date);} )
-            .attr("cy", function(d){return y(d.val);})
-            .attr("r", 3)
-            .attr("transform", `translate(${margin.left},${margin.top})`)
-            .attr("fill", "green")
-        .on("mouseover", mouseover)
-        .on("mousemove", mousemove)
-        .on("mouseleave", mouseleave)
-
-          const annotations = [
-            {
-              note: {
-                label: "This represents the peak number of cases that the US had in 1 day. Roughly 300,000!",
-                title: "January 2 2021",
-              },
-              type: d3.annotationCalloutRect,
-              subject: {
-                width: 20,
-                height: 20
-              },
-              color: ["indigo"],
-              x: 620,
-              y: 38,
-              dy: 100,
-              dx: 100
+             var mouseover = function(event, d) {
+               Tooltip
+                 .style("opacity", 1)
+                  d3.select(this)
+                 .style("r", 3)
+                 .style("fill", "indigo")
+             }
+            var mousemove = function(event, d) {
+              tmpdate = new Date(d.date).toUTCString();
+              tmpdate = tmpdate.split(' ').slice(0, 4).join(' ');
+              Tooltip
+                  .html("Date: " + tmpdate + '\n' + "Number of cases: " + d.val)
+                  .style("top", (parseInt(d3.select(this).attr("cy")) + 250) +"px")
+                  .style("left", (parseInt(d3.select(this).attr("cx")) + 50) + "px")
             }
-          ]
+            var mouseleave = function(event, d) {
+              Tooltip
+                  .style("opacity", 0)
+                  d3.select(this)
+                  .style("r", 1)
+                  .style("fill", "green")
+            }
 
-        const makeAnnotations = d3.annotation()
-                                  .annotations(annotations)
-        d3.select("svg")
-        .append("g")
-        .call(makeAnnotations)
+             var tmp = svg.selectAll(".testline")
+                 .data([data], function(d){ return d.date });
+
+             var chart = tmp.enter()
+             .append("path")
+             .attr("class","testline")
+             .merge(tmp)
+             .transition()
+             .duration(2000)
+             .attr("fill", "none")
+             .attr("stroke", "blue")
+             .attr("stroke-width", 2)
+             .attr("d", d3.line()
+               .x(function(d) { return x(d.date); })
+               .y(function(d) { return y(d.val); }));
 
 
+             d3.select("svg").append("g")
+           .selectAll().data(data).enter()
+           .append("circle")
+               .attr("cx", function(d){return x(d.date);} )
+               .attr("cy", function(d){return y(d.val);})
+               .attr("r", 3)
+               .attr("transform", `translate(${margin.left},${margin.top})`)
+               .attr("fill", "green")
+           .on("mouseover", mouseover)
+           .on("mousemove", mousemove)
+           .on("mouseleave", mouseleave)
+
+
+           const annotations = [
+             {
+               note: {
+                 label: "This represents the peak number of cases that New Zealand had in 1 day. Only 89! A very small total.",
+                 title: "April 5 2020",
+               },
+               type: d3.annotationCalloutRect,
+               subject: {
+                 width: 20,
+                 height: 20
+               },
+               color: ["indigo"],
+               x: 122,
+               y: 38,
+               dy: 50,
+               dx: 100
+             }
+           ]
+
+         const makeAnnotations = d3.annotation()
+                                   .annotations(annotations)
+         d3.select("svg")
+         .append("g")
+         .call(makeAnnotations)
         });
       } else {
-        d3.csv("./data/usa_deaths.csv", function(d) {
+        d3.csv("./data/new_zealand_deaths.csv", function(d) {
           return {date: d3.timeParse("%Y-%m-%d")(d.date), val: d.new_deaths}
         }).then(function(data) {
           x.domain(d3.extent(data, function(d) { return d.date; }));
@@ -235,7 +234,7 @@
              .duration(2000)
              .call(yAxis);
 
-             var Tooltip = d3.select("#USA")
+             var Tooltip = d3.select("#New_Zealand")
               .append("div")
               .style("opacity", 0)
               .style("position", "absolute")
@@ -301,7 +300,7 @@
       }
     }
 
-    trigger("usa_cases")
+    trigger("new_zealand_cases")
     </script>
    </body>
 </html>
